@@ -6,10 +6,22 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "3.3.8",
+    "async": "^1.5.0",
+    "body-parser": "*",
+    "connect-mongo": "*",
+    "cookie-parser": "*",
+    "crypto": "0.0.3",
     "ejs": "*",
+    "ejs-locals": "*",
+    "errorhandler": "^1.4.2",
+    "express": "3.3.8",
+    "express-session": "^1.12.1",
+    "mongodb": "^2.0.48",
+    "mongoose": "^4.2.4",
+    "morgan": "^1.6.1",
     "nconf": "*",
-    "winston": "*",
-    "ejs-locals": "*"
+    "serve-favicon": "*",
+    "serve-static": "^1.10.0",
+    "winston": "*"
   }
 }
