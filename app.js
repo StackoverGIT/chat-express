@@ -11,7 +11,6 @@ var morganLogger = require('morgan');
 var router = express.Router();
 var HttpError = require("./error").HttpError;
 var session = require("express-session");
-var MongoStore = require('connect-mongo')(session);
 var mongoose = require("libs/mongoose");
 var errorHandler = require("errorhandler");
 
@@ -36,11 +35,13 @@ app.use(bodyParser.urlencoded({
 })); // req.body
 
 app.use(cookieParser('your secret here')); // req.cookies
+
+var sessionStore = require("libs/sessionStore");
 app.use(session({
     secret: config.get("session:secret"),
     key: config.get("session:key"),
     cookie: config.get("session:cookie"),
-    store: new MongoStore({mongooseConnection: mongoose.connection}),
+    store: sessionStore,
     saveUninitialized: true,
     resave: true
 }));
