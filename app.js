@@ -2,7 +2,7 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var config = require('./config');
-var log = require("./libs/log")(module);
+var log = require("libs/log")(module);
 var bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 var favicon = require("serve-favicon");
@@ -12,9 +12,10 @@ var router = express.Router();
 var HttpError = require("./error").HttpError;
 var session = require("express-session");
 var MongoStore = require('connect-mongo')(session);
-var app = express();
 var mongoose = require("libs/mongoose");
 var errorHandler = require("errorhandler");
+
+var app = express();
 
 app.set('port', config.get('port'));
 
@@ -73,6 +74,10 @@ app.use(function(err, req, res, next) {
     }
 });
 
-http.createServer(app).listen(config.get('port'), function(){
-  log.info('Express server listening on port ' + config.get('port'));
+var server = http.createServer(app);
+
+server.listen(config.get('port'), function(){
+    log.info('Express server listening on port ' + config.get('port'));
 });
+
+require("./socket")(server);
