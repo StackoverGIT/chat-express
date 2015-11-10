@@ -52,6 +52,7 @@ app.use(session({
 //});
 
 app.use(require('middleware/sendHttpError'));
+app.use(require('middleware/loadUser'));
 require("./routes")(app);
 
 app.use(serveStatic(path.join(__dirname, 'public')));
@@ -81,4 +82,5 @@ server.listen(config.get('port'), function(){
     log.info('Express server listening on port ' + config.get('port'));
 });
 
-require("./socket")(server);
+var io = require("./socket")(server);
+app.set("io", io);

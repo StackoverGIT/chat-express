@@ -11,6 +11,7 @@
     "connect-mongo": "*",
     "cookie": "^0.2.3",
     "cookie-parser": "^1.4.0",
+    "cookie-signature": "^1.0.6",
     "crypto": "0.0.3",
     "ejs": "*",
     "ejs-locals": "*",

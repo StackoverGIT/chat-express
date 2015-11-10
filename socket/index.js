@@ -11,8 +11,8 @@ var HttpError = require("error").HttpError;
 var socketHandshake = require('socket.io-handshake');
 var User = require("models/user").User;
 
-function loadSession(sid, callback) {
 
+function loadSession(sid, callback) {
     // sessionStore callback is not quite async-style!
     sessionStore.load(sid, function(err, session) {
         if (arguments.length == 0) {
@@ -22,12 +22,9 @@ function loadSession(sid, callback) {
             return callback(null, session);
         }
     });
-
 }
 
-
 function loadUser(session, callback) {
-
     if (!session.user) {
         log.debug("Session %s is anonymous", session.id);
         return callback(null, null);
@@ -44,7 +41,6 @@ function loadUser(session, callback) {
         log.debug("user findbyId result: " + user);
         callback(null, user);
     });
-
 }
 
 
@@ -53,14 +49,6 @@ function loadUser(session, callback) {
 module.exports = function(server) {
     var io = require('socket.io').listen(server);
     //io.set('origins', 'localhost:3000');
-
-    //io.use(socketHandshake( {
-    //        store: sessionStore,
-    //        key: config.get("session:key"),
-    //        secret: config.get("session:secret") ,
-    //        parser:cookieParser()
-    //    }
-    //));
 
     io.use(function(socket, next) {
         log.info("handshake: ", socket.handshake);
@@ -104,14 +92,46 @@ module.exports = function(server) {
         });
     });
 
+    io.on('session:reload', function(sid) {
+        var clients = io.socket.clients();
+
+        clients.forEach(function(client) {
+            if (client.handshake.session.id != sid) return;
+
+            loadSession(sid, function(err, session) {
+                if (err) {
+                    client.emit("error", "server error");
+                    client.disconnect();
+                    return;
+                }
+
+                if (!session) {
+                    client.emit("logout");
+                    client.disconnect();
+                    return;
+                }
+
+                client.handshake.session = session;
+            });
+
+        });
+
+    });
+
     io.on('connection', function(socket, next) {
-        //var handshakeData = socket.request;
-        //log.info("cookie " + socket.request.headers.cookie);
+
+        var username = socket.handshake.user.get('username');
+        socket.broadcast.emit('join', username);
+        log.debug(username);
 
         socket.on('message', function(text, cb) {
-            socket.broadcast.emit('message', text);
+            socket.broadcast.emit('message', username, text);
             cb && cb();
         });
 
+        socket.on('disconnect', function() {
+            socket.broadcast.emit('leave', username);
+        });
+        return io;
     });
 };
